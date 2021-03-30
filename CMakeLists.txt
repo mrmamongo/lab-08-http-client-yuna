@@ -7,78 +7,44 @@ option(BUILD_TESTS "Build tests" ON)
 option(BUILD_DOCS "Build documentation" OFF)
 option(BUILD_COVERAGE "Build code coverage" OFF)
 
-set(
-  HUNTER_CACHE_SERVERS
-  "https://github.com/bmstu-iu8-cpp-sem-3/hunter-cache"
-  CACHE STRING "Default cache server"
-)
+# set(
+#   HUNTER_CACHE_SERVERS
+#   "https://github.com/bmstu-iu8-cpp-sem-3/hunter-cache"
+#   CACHE STRING "Default cache server"
+# )
 
-include("cmake/HunterGate.cmake")
+# include("cmake/HunterGate.cmake")
 
-HunterGate(
-  URL "https://github.com/cpp-pm/hunter/archive/v0.23.278.tar.gz"
-  SHA1 "35fa55bc1dfcf9f4d7264f8bb26cd1759ce1ae07"
-)
+# HunterGate(
+#   URL "https://github.com/cpp-pm/hunter/archive/v0.23.278.tar.gz"
+#   SHA1 "35fa55bc1dfcf9f4d7264f8bb26cd1759ce1ae07"
+# )
 
 # TODO: rename project and delete this comment
-project(template VERSION 0.1.0)
+project(http_client VERSION 0.1.0)
 string(APPEND CMAKE_CXX_FLAGS " -pedantic -Werror -Wall -Wextra")
 string(APPEND CMAKE_CXX_FLAGS " -Wno-unused-command-line-argument")
 string(APPEND CMAKE_CXX_FLAGS " -Wshadow -Wnon-virtual-dtor")
 
-hunter_add_package(GTest)
-find_package(GTest CONFIG REQUIRED)
 
-add_library(${PROJECT_NAME} STATIC
-  # enum your files and delete this comment
-  ${CMAKE_CURRENT_SOURCE_DIR}/sources/source.cpp
-)
+set(Boost_INCLUDE_DIR /home/lamp/boost_1_75_0)
+add_definitions(-DBOOST_LOG_DYN_LINK)
 
-add_executable(demo
-  ${CMAKE_CURRENT_SOURCE_DIR}/demo/main.cpp
-)
+find_package(Boost COMPONENTS system thread filesystem log program_options date_time REQUIRED)
 
-target_include_directories(${PROJECT_NAME} PUBLIC
-  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
-  "$<INSTALL_INTERFACE:include>"
-)
+add_subdirectory(third-party/json)
 
-target_link_libraries(demo ${PROJECT_NAME})
+find_package(Threads)
 
-if(BUILD_TESTS)
-  add_executable(tests
-    # TODO: enum your files and delete this comment
-    ${CMAKE_CURRENT_SOURCE_DIR}/tests/test.cpp
-  )
-  target_link_libraries(tests ${PROJECT_NAME} GTest::gtest_main)
-  enable_testing()
-  add_test(NAME unit_tests COMMAND tests)
-endif()
+set(Boost_L Boost::log Boost::log_setup Boost::thread Boost::system Boost::filesystem Boost::date_time)
 
-if(BUILD_COVERAGE)
-  set(ENABLE_COVERAGE ON CACHE BOOL "Enable coverage build." FORCE)
-  list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/tools/coverage/cmake")
-  find_package(codecov)
-  string(APPEND CMAKE_CXX_FLAGS " --coverage")
-  add_coverage(${PROJECT_NAME})
-  add_coverage(tests)
-  coverage_evaluate()
-endif()
+add_executable(${PROJECT_NAME} sources/client_exampel.cpp)
 
-if(BUILD_DOCS)
-  set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/_docs)
-  set(DOXYGEN_EXAMPLE_PATH examples)
-  set(DOXYGEN_GENERATE_HTML NO)
-  set(DOXYGEN_GENERATE_MAN YES)
-  find_package(Doxygen)
-  doxygen_add_docs(docs include)
-  install(DIRECTORY ${DOXYGEN_OUTPUT_DIRECTORY}/man DESTINATION share)
-  # add_dependencies(install docs) need to call target docs before install or package
-endif()
+target_link_libraries(${PROJECT_NAME} ${Boost_L} Boost::headers nlohmann_json::nlohmann_json)
 
 include(CPackConfig.cmake)
 
-install(TARGETS ${PROJECT_NAME} demo
+install(TARGETS ${PROJECT_NAME}
   EXPORT "${PROJECT_NAME}-targets"
   RUNTIME DESTINATION bin
   ARCHIVE DESTINATION lib
