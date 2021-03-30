@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
     }
     auto const host = argv[1];
     auto const port = argv[2];
-    auto const target = "v1/api/suggest";
+    auto const target = "/v1/app/suggest";
     int version = 11;
     auto const input = argv[3];
 
@@ -45,11 +45,15 @@ int main(int argc, char** argv) {
 
     http::request<http::string_body> req{http::verb::post, target, version};
     req.set(http::field::host, host);
-    req.set(http::field::user_agent, BOOST_BEAST_VERSION_STRING);
+    req.set(boost::beast::http::field::content_type, "application/json");
+
     json j;
     j["input"] = input;
+    std::cout << "\nSending message: " << j.dump() << "\n";
     req.body() = j.dump();
 
+    req.prepare_payload();
+    //std::cout << req.base().method_string().to_string() << "\n" << req.body() << "\n";
     http::write(stream, req);
 
     beast::flat_buffer buffer;
