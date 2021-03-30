@@ -27,7 +27,7 @@ string(APPEND CMAKE_CXX_FLAGS " -Wno-unused-command-line-argument")
 string(APPEND CMAKE_CXX_FLAGS " -Wshadow -Wnon-virtual-dtor")
 
 
-set(Boost_INCLUDE_DIR /home/lamp/boost_1_75_0)
+set(Boost_INCLUDE_DIR /home/boost_1_75_0)
 add_definitions(-DBOOST_LOG_DYN_LINK)
 
 find_package(Boost COMPONENTS system thread filesystem log program_options date_time REQUIRED)
