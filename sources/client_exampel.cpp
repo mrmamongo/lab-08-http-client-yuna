@@ -64,7 +64,6 @@ int main(int argc, char** argv) {
     stream.socket().shutdown(tcp::socket::shutdown_both, ec);
 
     if (ec && ec != beast::errc::not_connected) throw beast::system_error{ec};
-
   } catch (std::exception const& e) {
     std::cerr << "Error: " << e.what() << std::endl;
     return EXIT_FAILURE;
